@@ -1,50 +1,32 @@
-name: MOLIT bot (manual run)
-
+# .github/workflows/molit.yml
+name: molit-press-bot
 on:
-  workflow_dispatch:
-    inputs:
-      summary_chars:
-        description: '요약 길이(기본 220자)'
-        required: false
-        default: '220'
-      cache_path:
-        description: '중복방지 캐시 파일 경로(기본 .molit_sent.json)'
-        required: false
-        default: '.molit_sent.json'
+  schedule:
+    - cron: "0 9 * * *"  # 매일 18:00 KST
+  workflow_dispatch: {}   # <- 수동 실행 버튼
 
 jobs:
   run:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Show tree (debug)
-        run: |
-          ls -la
-          echo "----"
-          find . -maxdepth 3 -type f | sort
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-
-      - name: Install deps
-        run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            # requirements.txt가 없을 때도 바로 실행 가능
-            pip install requests beautifulsoup4 lxml
-          fi
-
-      - name: Run bot (manual dispatch)
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Test ping (optional)
         env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}   # BotFather 토큰(Secrets에 저장)
-          CHAT_ID:   ${{ secrets.CHAT_ID }}     # @채널유저명 또는 숫자 chat_id
-          SUMMARY_CHARS: ${{ github.event.inputs.summary_chars }}
-          CACHE_PATH:    ${{ github.event.inputs.cache_path }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
         run: |
-          python .github/workflows/molit_bot_now.py
+          python - <<'PY'
+          import os, requests
+          t=os.environ['BOT_TOKEN']; c=os.environ['CHAT_ID']
+          requests.post(f"https://api.telegram.org/bot{t}/sendMessage",
+                        data={"chat_id": c, "text": "🔔 테스트: Actions에서 발송합니다"})
+          PY
+      - name: Run bot
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python .github/workflows/molit_bot_now.py
