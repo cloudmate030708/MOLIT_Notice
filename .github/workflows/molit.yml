@@ -13,7 +13,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install requests beautifulsoup4 lxml
-      - run: python molit_bot.py
+      - run: python .github/workflows/molit_bot.py
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
