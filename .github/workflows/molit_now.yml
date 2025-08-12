@@ -1,5 +1,5 @@
 # .github/workflows/molit.yml
-name: molit-press-bot
+name: molit-now-bot
 on:
   schedule:
     - cron: "0 9 * * *"  # 매일 18:00 KST
