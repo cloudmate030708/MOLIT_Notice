@@ -1,0 +1,20 @@
+name: molit-press-bot
+on:
+  schedule:
+    - cron: "0 9 * * *"   # 매일 18:00 KST = 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: python molit_bot.py
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          RSS_URL: https://www.molit.go.kr/dev/board/board_rss.jsp?rss_id=NEWS
